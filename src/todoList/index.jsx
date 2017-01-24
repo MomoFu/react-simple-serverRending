@@ -1,4 +1,5 @@
 var  React  = require( 'react' );
+
 var  TodoItem =require( './../todoItem/index.jsx')
 var TodoFooter = require( './../todoFooter/index.jsx' )
 class TodoList extends React.Component {
@@ -11,8 +12,8 @@ class TodoList extends React.Component {
         <TodoItem
           taskId={listItem.id}
           key={listItem.id}
-          task={listItem.task}
-          complete={listItem.complete}
+          task={listItem.text}
+          complete={listItem.completed}
           deleteTask={this.props.deleteTask}
           toggleComplete={this.props.toggleComplete} />
       )
@@ -26,5 +27,7 @@ class TodoList extends React.Component {
     );
   }
 };
+
+
 
 module.exports = TodoList

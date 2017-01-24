@@ -2,6 +2,11 @@
 var express = require('express')
 var path = require('path')
 var React = require('react')
+
+var  createStore  = require('redux').createStore 
+var  Provider  =  require('react-redux').Provider
+var data = require('./data.js')
+var todoApp = require( './src/reducers' );
 var app = express()
 
 require('node-jsx').install({
@@ -12,7 +17,6 @@ var match = require('react-router').match;
 var RouterContext = require('react-router').RouterContext;
 var Routes = require('./src/routes.jsx');
 
-var TodoBox = require('./src/todoBox/index.jsx');
 
 var ReactDOMServer = require('react-dom/server');
 //var routes = React.createFactory(RouterContext);
@@ -21,6 +25,8 @@ var ReactDOMServer = require('react-dom/server');
 app.set('port', (process.env.PORT || 5000))
 app.use(express.static(__dirname + '/dist'))
 
+
+var store = createStore(todoApp, data);
 
 
 app.get('*', function(req, res) {
@@ -39,7 +45,12 @@ app.get('*', function(req, res) {
 
 			res.redirect(302, redirectLocation.pathname + redirectLocation.search)
 		} else if (renderProps) {
-			const appHtml = ReactDOMServer.renderToString(<RouterContext {...renderProps}/>)
+			//const appHtml = ReactDOMServer.renderToString(<Provider store={store}><RouterContext {...renderProps}/></Provider>)
+			const appHtml = ReactDOMServer.renderToString(
+		      <Provider store={store}>
+		        <RouterContext {...renderProps} />
+		      </Provider>
+		    )
 			res.send(renderPage(appHtml));
 			//	res.send(200, renderToString(<RouterContext {...renderProps}/>))
 		} else {
@@ -65,7 +76,9 @@ function renderPage(appHtml) {
     <div id="todoBox" class="col-md-6 col-md-offset-3"> ${appHtml}
 		</div>
   </div>
-
+  <script>
+  window.__INITIAL_STATE__ = ${JSON.stringify(data)}
+  </script>
   <script src="./bundle.js"></script>
   
 </body>

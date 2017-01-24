@@ -4,6 +4,11 @@
 var express = require('express');
 var path = require('path');
 var React = require('react');
+
+var createStore = require('redux').createStore;
+var Provider = require('react-redux').Provider;
+var data = require('./data.js');
+var todoApp = require('./src/reducers');
 var app = express();
 
 require('node-jsx').install({
@@ -14,20 +19,14 @@ var match = require('react-router').match;
 var RouterContext = require('react-router').RouterContext;
 var Routes = require('./src/routes.jsx');
 
-var TodoBox = require('./src/todoBox/index.jsx');
-
 var ReactDOMServer = require('react-dom/server');
-var routes = React.createFactory(RouterContext);
+//var routes = React.createFactory(RouterContext);
 
-var plainRoutes = {
-	path: '120.0.0.1:5000/bb',
-	component: {
-		TodoBox: TodoBox
-	}
-};
 
 app.set('port', process.env.PORT || 5000);
 app.use(express.static(__dirname + '/dist'));
+
+var store = createStore(todoApp, data);
 
 app.get('*', function (req, res) {
 	//res.sendFile(path.resolve(__dirname, 'dist', 'index.html'))
@@ -45,7 +44,12 @@ app.get('*', function (req, res) {
 
 			res.redirect(302, redirectLocation.pathname + redirectLocation.search);
 		} else if (renderProps) {
-			var appHtml = ReactDOMServer.renderToString(React.createElement(RouterContext, renderProps));
+			//const appHtml = ReactDOMServer.renderToString(<Provider store={store}><RouterContext {...renderProps}/></Provider>)
+			var appHtml = ReactDOMServer.renderToString(React.createElement(
+				Provider,
+				{ store: store },
+				React.createElement(RouterContext, renderProps)
+			));
 			res.send(renderPage(appHtml));
 			//	res.send(200, renderToString(<RouterContext {...renderProps}/>))
 		} else {
@@ -56,7 +60,7 @@ app.get('*', function (req, res) {
 });
 
 function renderPage(appHtml) {
-	return '\n   <!DOCTYPE html>\n<html lang="zh-CN">\n<head>\n  <meta charset="utf-8">\n  <title>Simplest React Todo List</title>\n  <link href="css/bootstrap.min.css" rel="stylesheet">\n  <link rel="stylesheet" href="css/style.css">\n</head>\n<body>\n  <div class="container">\n    <div id="todoBox" class="col-md-6 col-md-offset-3"> ' + appHtml + '\n\t\t</div>\n  </div>\n\n  <script src="./bundle.js"></script>\n  \n</body>\n</html>\n   ';
+	return '\n   <!DOCTYPE html>\n<html lang="zh-CN">\n<head>\n  <meta charset="utf-8">\n  <title>Simplest React Todo List</title>\n  <link href="css/bootstrap.min.css" rel="stylesheet">\n  <link rel="stylesheet" href="css/style.css">\n</head>\n<body>\n  <div class="container">\n    <div id="todoBox" class="col-md-6 col-md-offset-3"> ' + appHtml + '\n\t\t</div>\n  </div>\n  <script>\n  window.__INITIAL_STATE__ = ' + JSON.stringify(data) + '\n  </script>\n  <script src="./bundle.js"></script>\n  \n</body>\n</html>\n   ';
 }
 
 /*

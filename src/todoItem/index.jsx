@@ -6,6 +6,7 @@ var React = require( 'react' );
     super(props);
   }
   toggleComplete() {
+    console.log(this.props.taskId);
     this.props.toggleComplete(this.props.taskId);
   }
 
@@ -28,7 +29,8 @@ var React = require( 'react' );
     //var that = this ;
     var classes = "list-group-item"
     var itemChecked;
-    if (this.props.complete === "true") {
+    if (this.props.complete === true) {
+     // console.log('ccc'+this.props.complete)
       task = <s>{task}</s>
       itemChecked = true;
       classes += " list-group-item-success"
@@ -49,5 +51,9 @@ var React = require( 'react' );
     );
   }
 };
+
+//module.exports = TodoItem
+
+
 
 module.exports = TodoItem
